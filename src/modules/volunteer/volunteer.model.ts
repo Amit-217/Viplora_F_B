@@ -1,29 +1,29 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IVolunteerApplication extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
+  userId?: mongoose.Schema.Types.ObjectId;
   fullName: string;
   email: string;
   phone: string;
   occupation: string;
-  skills: string[];
-  reason: string;
-  availability: 'weekdays' | 'weekends' | 'both';
+  skills: string;
+  location: string;
+  availability: 'weekdays' | 'weekends' | 'evenings' | 'flexible';
   status: 'pending' | 'approved' | 'rejected';
   appliedAt: Date;
 }
 
 const VolunteerApplicationSchema: Schema = new Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   fullName: { type: String, required: true },
   email: { type: String, required: true },
   phone: { type: String, required: true },
   occupation: { type: String, required: true },
-  skills: [{ type: String }],
-  reason: { type: String, required: true },
+  skills: { type: String },
+  location: { type: String },
   availability: { 
     type: String, 
-    enum: ['weekdays', 'weekends', 'both'], 
+    enum: ['weekdays', 'weekends', 'evenings', 'flexible'], 
     default: 'weekdays' 
   },
   status: { 

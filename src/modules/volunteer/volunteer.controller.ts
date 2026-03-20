@@ -6,21 +6,19 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
-export const applyAsVolunteer = async (req: AuthRequest, res: Response) => {
+export const applyAsVolunteer = async (req: Request, res: Response) => {
   try {
-    const userId = req.user._id;
+    const { email, name } = req.body;
 
     // Check if already applied
-    const existing = await VolunteerApplication.findOne({ userId });
+    const existing = await VolunteerApplication.findOne({ email });
     if (existing) {
-      return res.status(400).json({ message: 'You have already submitted an application' });
+      return res.status(400).json({ message: 'An application with this email already exists' });
     }
 
     const application = await VolunteerApplication.create({
       ...req.body,
-      userId,
-      email: req.user.email,
-      fullName: req.user.name
+      fullName: name || req.body.fullName
     });
 
     res.status(201).json({ message: 'Application submitted successfully', application });
@@ -31,7 +29,7 @@ export const applyAsVolunteer = async (req: AuthRequest, res: Response) => {
 
 export const getAllApplications = async (req: Request, res: Response) => {
   try {
-    const applications = await VolunteerApplication.find().populate('userId', 'name email customId');
+    const applications = await VolunteerApplication.find().sort({ createdAt: -1 });
     res.json(applications);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

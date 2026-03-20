@@ -77,3 +77,18 @@ export const verifyPayment = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getUserDonations = async (req: Request, res: Response) => {
+  try {
+    const userEmail = (req as any).user?.email;
+    if (!userEmail) return res.status(401).json({ message: 'User unknown' });
+    
+    const donations = await Donation.find({ 'donorDetails.email': userEmail, status: 'completed' })
+      .populate('programId', 'title')
+      .sort({ createdAt: -1 });
+      
+    res.json(donations);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

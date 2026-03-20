@@ -14,7 +14,12 @@ export const getAllGallery = async (req: Request, res: Response) => {
 
 export const createGalleryItem = async (req: Request, res: Response) => {
   try {
-    const item = await Gallery.create(req.body);
+    const { title, category } = req.body;
+    const image = req.file?.path;
+    if (!image) {
+      return res.status(400).json({ message: 'Image file is required' });
+    }
+    const item = await Gallery.create({ title, category, image });
     res.status(201).json(item);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

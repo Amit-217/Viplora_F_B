@@ -5,7 +5,7 @@ import { UserRole } from '../user/user.model.js';
 
 const router = Router();
 
-router.post('/apply', protect, applyAsVolunteer);
+router.post('/apply', applyAsVolunteer);
 router.get('/applications', protect, authorize(UserRole.ADMIN), getAllApplications);
 router.patch('/applications/:id/status', protect, authorize(UserRole.ADMIN), updateApplicationStatus);
 
