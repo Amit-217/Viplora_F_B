@@ -6,10 +6,14 @@ export interface IProgram extends Document {
   description: string;
   shortDescription: string;
   category: 'education' | 'food' | 'farmers' | 'water' | 'environment' | 'health';
+  type: 'event' | 'fundraiser' | 'announcement';
+  date?: Date;
+  location?: string;
+  targetDate?: Date;
   image: string;
   gallery: string[];
-  goalAmount: number;
-  raisedAmount: number;
+  goalAmount?: number;
+  raisedAmount?: number;
   impactStats: {
     label: string;
     value: string;
@@ -29,7 +33,16 @@ const ProgramSchema: Schema = new Schema({
     enum: ['education', 'food', 'farmers', 'water', 'environment', 'health'],
     required: true 
   },
-  image: { type: String, required: true },
+  type: { 
+    type: String, 
+    enum: ['event', 'fundraiser', 'announcement'], 
+    default: 'event',
+    required: true 
+  },
+  date: { type: Date },
+  location: { type: String },
+  targetDate: { type: Date },
+  image: { type: String },
   gallery: [{ type: String }],
   goalAmount: { type: Number, default: 0 },
   raisedAmount: { type: Number, default: 0 },

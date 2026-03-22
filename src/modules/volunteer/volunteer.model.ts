@@ -9,6 +9,7 @@ export interface IVolunteerApplication extends Document {
   skills: string;
   location: string;
   availability: 'weekdays' | 'weekends' | 'evenings' | 'flexible';
+  reason?: string;
   status: 'pending' | 'approved' | 'rejected';
   appliedAt: Date;
 }
@@ -21,6 +22,7 @@ const VolunteerApplicationSchema: Schema = new Schema({
   occupation: { type: String, required: true },
   skills: { type: String },
   location: { type: String },
+  reason: { type: String },
   availability: { 
     type: String, 
     enum: ['weekdays', 'weekends', 'evenings', 'flexible'], 

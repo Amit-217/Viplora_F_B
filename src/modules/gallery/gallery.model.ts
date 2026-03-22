@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IGallery extends Document {
   title: string;
   image: string;
+  images?: string[]; // Multiple images support
   category: 'events' | 'programs' | 'impact' | 'volunteers';
   programId?: mongoose.Schema.Types.ObjectId;
   createdAt: Date;
@@ -11,6 +12,7 @@ export interface IGallery extends Document {
 const GallerySchema: Schema = new Schema({
   title: { type: String, required: true },
   image: { type: String, required: true },
+  images: [{ type: String }], // Array for multiple images
   category: { 
     type: String, 
     enum: ['events', 'programs', 'impact', 'volunteers'],

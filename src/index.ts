@@ -10,6 +10,8 @@ import blogRoutes from './modules/blog/blog.routes.js';
 import galleryRoutes from './modules/gallery/gallery.routes.js';
 import contactRoutes from './modules/contact/contact.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
+import noticeRoutes from './modules/notice/notice.routes.js';
+import activityRoutes from './modules/activity/activity.routes.js';
 dotenv.config();
 
 const app = express();
@@ -28,6 +30,8 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notice', noticeRoutes);
+app.use('/api/activities', activityRoutes);
 // Health Check
 app.get('/', (req: Request, res: Response) => {
     res.send('VIPLORA NGO API is running (ES6 + TypeScript + Contact Support)...');
@@ -35,14 +39,14 @@ app.get('/', (req: Request, res: Response) => {
 
 // Database connection
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ngo_platform';
+const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000, family: 4 })
     .then(() => {
-        console.log('MongoDB Connected successfully to:', MONGO_URI);
+        console.log('MongoDB Connected successfully');
     })
     .catch(err => {
-        console.log('DB Connection Error (Please whitelist your IP in MongoDB Atlas):', err.message);
+        console.log('DB Connection Error', err.message);
     });
 
 // Always start the port listener so frontend doesn't get 'Connection Refused'

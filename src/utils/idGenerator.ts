@@ -7,8 +7,11 @@ export const generateCustomId = async (role: UserRole): Promise<string> => {
   
   let nextNumber = 1;
   if (lastUser && lastUser.customId) {
-    const lastNumber = parseInt(lastUser.customId.split('-')[1]);
-    nextNumber = lastNumber + 1;
+    const match = lastUser.customId.match(/\d+/);
+    if (match) {
+      const lastNumber = parseInt(match[0], 10);
+      nextNumber = lastNumber + 1;
+    }
   }
   
   const paddedNumber = nextNumber.toString().padStart(4, '0');

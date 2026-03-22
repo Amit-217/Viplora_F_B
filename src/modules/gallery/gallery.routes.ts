@@ -7,7 +7,7 @@ import { upload } from '../../config/cloudinary.js';
 const router = Router();
 
 router.get('/', getAllGallery);
-router.post('/', protect, authorize(UserRole.ADMIN), upload.single('image'), createGalleryItem);
+router.post('/', protect, authorize(UserRole.ADMIN), upload.array('images', 10), createGalleryItem);
 router.delete('/:id', protect, authorize(UserRole.ADMIN), deleteGalleryItem);
 
 export default router;

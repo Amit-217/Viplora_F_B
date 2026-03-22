@@ -3,17 +3,17 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User, { UserRole } from '../user/user.model.js';
 import { generateCustomId } from '../../utils/idGenerator.js';
-import { sendOTPEmail } from '../../utils/emailService.js';
+import { sendOTPEmail, sendForgotPasswordOTPEmail } from '../../utils/emailService.js';
 
 const generateToken = (id: string) => {
-  return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET || 'fallback_secret_key_12345', {
-    expiresIn: '30d',
-  });
+  return jwt.sign({ id }, (process.env.ACCESS_TOKEN_SECRET as string) || 'fallback_secret_key_12345', {
+    expiresIn: (process.env.USER_ACCESS_TOKEN_EXPIRE as string) || '30m',
+  } as jwt.SignOptions);
 };
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -23,7 +23,7 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const customId = await generateCustomId(role || UserRole.USER);
+    const customId = await generateCustomId(UserRole.USER);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
@@ -32,7 +32,7 @@ export const register = async (req: Request, res: Response) => {
       name,
       email,
       password: hashedPassword,
-      role: role || UserRole.USER,
+      role: UserRole.USER,
       otp,
       otpExpires
     });
@@ -139,8 +139,8 @@ export const adminLogin = async (req: Request, res: Response) => {
     if (email === adminEmail && password === adminPass) {
       const token = jwt.sign(
         { id: 'admin_env', role: 'admin' }, 
-        process.env.ACCESS_TOKEN_SECRET || 'fallback_secret_key_12345', 
-        { expiresIn: '30d' }
+        (process.env.ACCESS_TOKEN_SECRET as string) || 'fallback_secret_key_12345', 
+        { expiresIn: (process.env.ADMIN_ACCESS_TOKEN_EXPIRE as string) || '60m' } as jwt.SignOptions
       );
       return res.json({
         token,
@@ -179,7 +179,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     user.otpExpires = otpExpires as any;
     await user.save();
 
-    await sendOTPEmail(email, otp);
+    await sendForgotPasswordOTPEmail(email, otp);
 
     res.status(200).json({ message: 'Password reset OTP sent to your email.' });
   } catch (error: any) {
@@ -203,6 +203,30 @@ export const resetPassword = async (req: Request, res: Response) => {
     await user.save();
 
     res.status(200).json({ message: 'Password has been reset successfully. You can now log in.' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?._id || (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    let token = '';
+    if (userId === 'admin_env') {
+       token = jwt.sign(
+         { id: 'admin_env', role: 'admin' }, 
+         (process.env.ACCESS_TOKEN_SECRET as string) || 'fallback_secret_key_12345', 
+         { expiresIn: (process.env.ADMIN_ACCESS_TOKEN_EXPIRE as string) || '60m' } as jwt.SignOptions
+       );
+    } else {
+       token = generateToken(userId.toString());
+    }
+
+    res.json({ token });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

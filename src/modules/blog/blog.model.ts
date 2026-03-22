@@ -6,7 +6,9 @@ export interface IBlog extends Document {
   content: string;
   excerpt: string;
   author: string;
+  authorId: mongoose.Types.ObjectId;
   image: string;
+  images?: string[]; // Multiple images support
   tags: string[];
   category: string;
   isPublished: boolean;
@@ -19,7 +21,9 @@ const BlogSchema: Schema = new Schema({
   content: { type: String, required: true },
   excerpt: { type: String, required: true },
   author: { type: String, default: 'Viplora Admin' },
+  authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   image: { type: String, required: true },
+  images: [{ type: String }], // Array for multiple images
   tags: [{ type: String }],
   category: { type: String, required: true },
   isPublished: { type: Boolean, default: true }
