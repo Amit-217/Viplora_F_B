@@ -41,6 +41,10 @@ app.get('/', (req: Request, res: Response) => {
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
+if (!MONGO_URI) {
+    throw new Error('MONGO_URI is not defined in environment variables');
+}
+
 mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000, family: 4 })
     .then(() => {
         console.log('MongoDB Connected successfully');
